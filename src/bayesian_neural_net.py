@@ -1,3 +1,6 @@
+from sklearn.preprocessing import scale
+from sklearn.cross_validation import train_test_split
+from sklearn.datasets import make_moons
 import pymc3 as pm
 import theano.tensor as T
 import theano
@@ -5,9 +8,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 sns.set_style('white')
-from sklearn.preprocessing import scale
-from sklearn.cross_validation import train_test_split
-from sklearn.datasets import make_moons
 
 
 def create_data(plot=False):
@@ -43,7 +43,7 @@ def create_minibatch(data):
         yield data[ixs]
 
 
-def train_model(X, X_train, Y_train, n_hidden=10, plot=True):
+def train_model(X, X_train, Y_train, n_hidden=10, plot=False):
     """
     Train the Bayesian neural net. It has a single hidden layer and n_hidden nodes
     Train it using minibatches to allow for big amounts of data to be processed
@@ -126,7 +126,7 @@ def train_model(X, X_train, Y_train, n_hidden=10, plot=True):
     return ann_input, ann_output, trace, neural_network
 
 
-def test_model(ann_input, ann_output, trace, neural_network, plot=False):
+def test_model(ann_input, ann_output, trace, neural_network, X_test, Y_test, plot=False):
     """
     Test the accuracy of the model trained
     :param ann_input:
@@ -156,8 +156,10 @@ def test_model(ann_input, ann_output, trace, neural_network, plot=False):
 
     print('Accuracy = {}%'.format((Y_test == pred).mean() * 100))
 
+    return pred
+
 
 if __name__ == "__main__":
     X, Y, X_train, X_test, Y_train, Y_test = create_data()
     ann_input, ann_output, trace, neural_network = train_model(X, X_train, Y_train)
-    test_model(ann_input, ann_output, trace, neural_network)
+    pred = test_model(ann_input, ann_output, trace, neural_network, X_test, Y_test)
