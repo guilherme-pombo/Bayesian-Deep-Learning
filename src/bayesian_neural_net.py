@@ -106,6 +106,7 @@ def train_model(X, X_train, Y_train, n_hidden=10, plot=False):
 
     total_size = len(Y_train)
 
+    # mean-field approximation so we ignore correlations in the posterior
     with neural_network:
         # Run advi_minibatch
         v_params = pm.variational.advi_minibatch(
@@ -114,6 +115,7 @@ def train_model(X, X_train, Y_train, n_hidden=10, plot=False):
             total_size=total_size, learning_rate=1e-2, epsilon=1.0
         )
 
+    # draw samples from the variational posterior
     with neural_network:
         trace = pm.variational.sample_vp(v_params, draws=5000)
 
@@ -128,7 +130,7 @@ def train_model(X, X_train, Y_train, n_hidden=10, plot=False):
 
 def test_model(ann_input, ann_output, trace, neural_network, X_test, Y_test, plot=False):
     """
-    Test the accuracy of the model trained
+    Test the accuracy of the model trained, predict on the hold-out set using a posterior predictive check
     :param ann_input:
     :param ann_output:
     :param trace:
